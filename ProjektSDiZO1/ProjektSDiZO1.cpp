@@ -118,8 +118,8 @@ void menu_list() {
 			break;
 
 		case '2': //tutaj usuwanie elemenu z tablicy
-			cout << " podaj index:";
-			cin >> index;
+			cout << " podaj liczbe:";
+			cin >> value;
 			myList->deleteValue(value);
 			myList->display();
 			break;
@@ -325,7 +325,7 @@ List::List() {
 List::~List() {
 
 }
-//do zrobienia
+
 bool List::isValueInList(int value) {
 	List* current = head;
 	while (current != nullptr) {
@@ -389,12 +389,20 @@ void List::addValue(int index, int value1) {
 	}
 	current->prev = tempList;
 	if (current == head) {
-		head == tempList;
+		head = tempList;
 	}
 }
 //do zrobienia
 void List::deleteValue(int value) {
-
+	List* current = head;
+	while (current != nullptr) {
+		if (current->value == value) {
+			current->prev->next = current->next;
+			current->next->prev = current->prev;
+			break;
+		}
+			current = current->next;
+	}
 }	 
 
 void List::display() {
