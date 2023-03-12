@@ -3,6 +3,7 @@
 
 #include "Tablica.h"
 #include "List.h"
+#include "Heap.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -25,6 +26,7 @@ void displayMenu(string info) {
 
 Tablica myTab; 
 List* myList = new List();
+Heap myHeap;
 
 void menu_table() {
 	char opt;
@@ -148,7 +150,63 @@ void menu_list() {
 }
 
 void menu_heap() {
-	//analogicznie jak menu_table()
+	char opt;
+	string fileName;
+	int index, value;
+	do {
+		displayMenu("--- KOPIEC ---");
+		cin >> opt;
+		cout << endl;
+		switch (opt) {
+		case '1': //tutaj wczytytwanie  tablicy z pliku
+			cout << " Podaj nazwę zbioru:";
+			cin >> fileName;
+			myHeap.loadFromFile(fileName);
+			myHeap.display();
+			break;
+
+		case '2': //tutaj usuwanie elemenu z tablicy
+			cout << " podaj liczbe:";
+			cin >> value;
+			myHeap.deleteValue(value);
+			myHeap.display();
+			break;
+
+		case '3': //tutaj dodawanie elemetu do tablicy
+			cout << " podaj index:";
+			cin >> index;
+			cout << " podaj wartość:";
+			cin >> value;
+			myHeap.addValue(index, value);
+			myHeap.display();
+			break;
+
+		case '4': //tutaj znajdowanie elemetu w tablicy
+			cout << " podaj wartosc:";
+			cin >> value;
+			if (myHeap.isValueInHeap(value))
+				cout << "podana wartosc jest w kopcu";
+			else
+				cout << "podanej wartosci NIE ma w kopcu";
+			break;
+
+		case '5':  //tutaj generowanie  tablicy
+			cout << "Podaj ilosc elementów kopca:";
+			cin >> value;
+			myHeap.generateHeap(value);
+			myHeap.display();
+			break;
+
+		case '6':  //tutaj wyświetlanie tablicy
+			myHeap.display();
+			break;
+
+		case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego 
+			// można sobie tu dodać własne dodatkowe case'y
+			break;
+		}
+
+	} while (opt != '0');
 }
 
 int main(int argc, char* argv[]) {
@@ -307,9 +365,9 @@ List::List() {
 	prev = nullptr;
 	next = nullptr;
 }
-
+//zapytac sie czy clearList to moze byc po prostu ten destruktor
 List::~List() {
-
+	clearList();
 }
 
 bool List::isValueInList(int value) {
@@ -426,6 +484,7 @@ void List::display() {
 		current = current->prev;
 	}
 }
+
 void List::clearList() {
 	List* next1;
 	List* current = head;
@@ -439,6 +498,7 @@ void List::clearList() {
 		tail = nullptr;
 	}
 }
+
 void List::generateList(int size) {
 	clearList();
 	for (int i = 0; i < size; i++) {
@@ -470,4 +530,58 @@ void List::loadListFromFile(string fileName) {
 		myList->addValueFromFile(value);
 	}
 	read.close();
+}
+
+Heap::Heap() {
+
+}
+
+Heap::~Heap() {
+}
+
+void Heap::display() {
+	for (int i=0; i<size; i++)
+	cout << arr[i] << " ";
+}
+
+int Heap::loadFromFile(string fileName) {
+	ifstream file(fileName);
+	file >> size;
+	for (int i = 0; i < size; i++) {
+		file >> arr[i];
+	}
+	file.close();
+	for (int i = (size / 2) - 1; i >= 0; i--)
+		floydHeapify(i);
+	return 1;
+}
+
+void Heap::floydHeapify(int i) {
+	int largest = i;
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
+	if (left < size && arr[left] > arr[largest])
+		largest = left;
+	if (right < size && arr[right] > arr[largest])
+		largest = right;
+	if (largest != i) {
+		swap(arr[i], arr[largest]);
+		floydHeapify(largest);
+	}
+}
+
+bool Heap::isValueInHeap(int value) {
+	return true;
+}
+
+void Heap::addValue(int index, int value) {
+}
+
+void Heap::deleteValue(int value) {
+}
+
+void Heap::deleteIndex(int index) {
+}
+
+void Heap::generateHeap(int size) {
 }

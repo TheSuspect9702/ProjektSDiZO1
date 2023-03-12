@@ -130,6 +130,7 @@
     <ClCompile Include="ProjektSDiZO1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Heap.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Tablica.h" />
   </ItemGroup>
