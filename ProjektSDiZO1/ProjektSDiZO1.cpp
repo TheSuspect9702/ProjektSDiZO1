@@ -25,20 +25,6 @@ void displayMenu(string info) {
 
 Tablica myTab; 
 List* myList = new List();
-void loadListFromFile(string fileName) { // działa xD jak? nie wiem
-	ifstream read(fileName);
-	int size = 0;
-	int value;
-	string line;
-	getline(read, line);
-	size = stoi(line);
-	for(int i = 0;i<size;i++){
-		getline(read, line);
-		value = stoi(line);
-		myList->addValueFromFile(value);
-	}
-	read.close();
-}
 
 void menu_table() {
 	char opt;
@@ -113,7 +99,7 @@ void menu_list() {
 		case '1': //tutaj wczytytwanie  tablicy z pliku
 			cout << " Podaj nazwę zbioru:";
 			cin >> fileName;
-			loadListFromFile(fileName);
+			myList->loadListFromFile(fileName);
 			myList->display();
 			break;
 
@@ -440,7 +426,48 @@ void List::display() {
 		current = current->prev;
 	}
 }
-//do zrobienia
+void List::clearList() {
+	List* next1;
+	List* current = head;
+	if (head != nullptr || tail != nullptr) {
+		while (current != nullptr) {
+			next = current->next;
+			delete current;
+			current = next;
+		}
+		head = nullptr;
+		tail = nullptr;
+	}
+}
 void List::generateList(int size) {
-
+	clearList();
+	for (int i = 0; i < size; i++) {
+		List* tempList = new List();
+		tempList->value = rand() % 1000;
+		if (head == nullptr) {
+			head = tempList;
+			tail = tempList;
+		}
+		else {
+			tail->next = tempList;
+			tempList->prev = tail;
+			tail = tempList;
+		}
+	}
 }	 
+
+void List::loadListFromFile(string fileName) {
+	clearList();
+	ifstream read(fileName);
+	int size = 0;
+	int value;
+	string line;
+	getline(read, line);
+	size = stoi(line);
+	for (int i = 0; i < size; i++) {
+		getline(read, line);
+		value = stoi(line);
+		myList->addValueFromFile(value);
+	}
+	read.close();
+}
