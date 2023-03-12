@@ -392,16 +392,38 @@ void List::addValue(int index, int value1) {
 		head = tempList;
 	}
 }
-//do zrobienia
+
 void List::deleteValue(int value) {
 	List* current = head;
 	while (current != nullptr) {
+		if (current == head && current == tail && current->value == value) {
+			head = nullptr;
+			tail = nullptr;
+			delete current;
+			break;
+		}
+		if (current == head && current->value == value) {
+			head = current->next;
+			current->next->prev = nullptr;
+			delete current;
+			break;
+		}
+		if (current == tail && current->value == value) {
+			tail = current->prev;
+			current->prev->next = nullptr;
+			delete current;
+			break;
+		}
 		if (current->value == value) {
 			current->prev->next = current->next;
 			current->next->prev = current->prev;
+			delete current;
 			break;
 		}
 			current = current->next;
+		if (current == nullptr) {
+			cout << "Nie znaleziono liczby ktora chciales usunac" << endl;
+		}
 	}
 }	 
 
