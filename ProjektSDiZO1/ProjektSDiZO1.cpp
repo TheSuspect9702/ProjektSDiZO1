@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <time.h>
+#include <Windows.h>
 
 using namespace std;
 void displayMenu(string info) {
@@ -27,6 +28,27 @@ void displayMenu(string info) {
 Tablica myTab; 
 List* myList = new List();
 Heap myHeap;
+//Zapytac o co tu chodzi z tymi funkcjami
+double PCFreq = 0.0;
+__int64 CounterStart = 0;
+
+void StartCounter()
+{
+	LARGE_INTEGER li;
+	if (!QueryPerformanceFrequency(&li))
+		cout << "QueryPerformanceFrequency failed!\n";
+
+	PCFreq = double(li.QuadPart) / 1000.0;
+
+	QueryPerformanceCounter(&li);
+	CounterStart = li.QuadPart;
+}
+double GetCounter()
+{
+	LARGE_INTEGER li;
+	QueryPerformanceCounter(&li);
+	return double(li.QuadPart - CounterStart) / PCFreq;
+}
 
 void menu_table() {
 	char opt;
@@ -81,8 +103,8 @@ void menu_table() {
 			myTab.display();
 			break;
 
-		case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego 
-			// można sobie tu dodać własne dodatkowe case'y
+		case '7': 
+			myTab.Test();
 			break;
 		}
 
@@ -358,6 +380,42 @@ void Tablica::deleteValue(int value) {
 		myTab.tab[i] = tab1[i];
 }
 
+void Tablica::Test() {
+	srand(time(NULL));
+	double timeTableDelete[10] = { 0 };
+	double timeTableAdd[10] = { 0 };
+	int value;
+	int index;
+	int k = 0;
+	for (int j = 1; j <= 10; j++) {
+		for (int i = 0; i < 10; i++) {
+			value = rand() % 1000;
+			index = rand() % (j * 1000 - 10);
+			myTab.generateTable(j * 1000 * (k+1));
+			StartCounter();
+			myTab.addValue(index, value);
+			timeTableAdd[k] += GetCounter();
+			value = rand() % 1000;
+			index = rand() % (j * 1000 - 10);
+			StartCounter();
+			myTab.deleteValue(value);
+			timeTableDelete[k] += GetCounter();
+			system("cls");
+			cout << "test zakończony" << endl;
+		}
+		k++;
+	}
+	k = 1;
+	for (int i = 0; i < 10; i++) {
+		timeTableAdd[i] /= 100;
+		timeTableDelete[i] /= 100;
+		cout << "Średni czas dla "<< (i+1)*1000*k << " próbek" << endl;
+		cout << "DODAJ: " << timeTableAdd[i] << endl;
+		cout << "USUN: " << timeTableDelete[i] << endl;
+		k++;
+	}
+}
+
 List::List() {
 	value = 0;
 	prev = nullptr;
@@ -593,7 +651,7 @@ void Heap::deleteIndex(int index) {
 	delete arr1;
 	floydHeapify(0);
 }
-
+//nie tworzy sie odpowiednio posortowanie 
 void Heap::generateHeap(int size1) {
 	srand(time(NULL));
 	size = size1;

@@ -15,4 +15,5 @@ public:
 	void deleteValue(int value);
 	void deleteIndex(int index);
 	void generateTable(int size);
+	void Test();
 };
