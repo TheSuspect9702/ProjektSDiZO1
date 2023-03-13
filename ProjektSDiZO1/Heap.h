@@ -11,7 +11,7 @@ public:
 	int loadFromFile(std::string fileName);
 	bool isValueInHeap(int value);
 	void addValue(int index, int value);
-	void deleteValue(int value);
+	//void deleteValue(int value);
 	void deleteIndex(int index);
 	void generateHeap(int size);
 	void floydHeapify(int i);
