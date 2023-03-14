@@ -300,66 +300,41 @@ bool Tablica::isValueInTable(int value) {
 			return true;
 	return false;
 }
-
+//POPRAWIC KOD DODAWANIA I USUWANIA Z TABLICY PRZYPISYWAC PO PROSTU TAB1 DO STAREGO TAB
 void Tablica::addValue(int index, int value) {
-	if (index>=0 && index <=size) {
-		if (index == size) {
-			int* tab1 = new int[myTab.size + 1];
-			int size1 = 0;
-			int j = 0;
-			bool insert = false;
-			for (int i = 0; i < myTab.size; ) {
-				if (i != index || insert) {
-					tab1[j] = myTab.tab[i];
-					i++;
-				}
-				else {
-					tab1[j] = value;
-					insert = true;
-				}
-				j++;
-				size1++;
+	if (index >= 0 && index <= size) {
+		int* tab1 = new int[myTab.size+1];
+		int size1 = 0;
+		int j = 0;
+		bool insert = false;
+		for (int i = 0; i < myTab.size; ) {
+			if (i != index || insert) {
+				tab1[j] = myTab.tab[i];
+				i++;
 			}
+			else {
+				tab1[j] = value;
+				insert = true;
+			}
+			j++;
+			size1++;
+		}
+		if (index == size) {
 			tab1[size] = value;
 			size1++;
-			delete myTab.tab;
+			myTab.tab = tab1;
 			myTab.size = size1;
-			myTab.tab = new int[size];
-			for (int i = 0; i < size; i++)
-				myTab.tab[i] = tab1[i];
 		}
 		else {
-			int* tab1 = new int[myTab.size];
-			int size1 = 0;
-			int j = 0;
-			bool insert = false;
-			for (int i = 0; i < myTab.size; ) {
-				if (i != index || insert) {
-					tab1[j] = myTab.tab[i];
-					i++;
-				}
-				else {
-					tab1[j] = value;
-					insert = true;
-				}
-				j++;
-				size1++;
-			}
-			delete myTab.tab;
+			myTab.tab = tab1;
 			myTab.size = size1;
-			myTab.tab = new int[size];
-			for (int i = 0; i < size; i++)
-				myTab.tab[i] = tab1[i];
 		}
-	}
-	else {
-		cout << "Podany indeks jest niepoprawny" << endl;
 	}
 }
 
 void Tablica::deleteIndex(int index) {
 	if (!(index < 0 || index >= size)) {
-		int* tab1 = new int[myTab.size];
+		int* tab1 = new int[myTab.size-1];
 		int size1 = 0;
 		int j = 0;
 		for (int i = 0; i < myTab.size; i++) {
@@ -369,15 +344,9 @@ void Tablica::deleteIndex(int index) {
 				size1++;
 			}
 		}
-		delete myTab.tab;
+		myTab.tab = tab1;
 		myTab.size = size1;
-		myTab.tab = new int[size];
-		for (int i = 0; i < size; i++)
-			myTab.tab[i] = tab1[i];
-		delete[] tab1;
 	}
-	else 
-		cout << "Podany indeks jest niepoprawny";
 }
 
 void Tablica::display() {
@@ -538,33 +507,35 @@ void List::addValue(int index, int value1) {
 void List::deleteValue(int value) {
 	List* current = head;
 	while (current != nullptr) {
-		if (current == head && current == tail && current->value == value) {
-			head = nullptr;
-			tail = nullptr;
-			delete current;
-			break;
-		}
-		if (current == head && current->value == value) {
-			head = current->next;
-			current->next->prev = nullptr;
-			delete current;
-			break;
-		}
-		if (current == tail && current->value == value) {
-			tail = current->prev;
-			current->prev->next = nullptr;
-			delete current;
-			break;
-		}
 		if (current->value == value) {
-			current->prev->next = current->next;
-			current->next->prev = current->prev;
-			delete current;
-			break;
-		}
+			if (current == head && current == tail) {
+				head = nullptr;
+				tail = nullptr;
+				delete current;
+				break;
+			}
+			if (current == head) {
+				head = current->next;
+				current->next->prev = nullptr;
+				delete current;
+				break;
+			}
+			if (current == tail) {
+				tail = current->prev;
+				current->prev->next = nullptr;
+				delete current;
+				break;
+			}
+			else {
+				current->prev->next = current->next;
+				current->next->prev = current->prev;
+				delete current;
+				break;
+			}
 			current = current->next;
-		if (current == nullptr) {
-			cout << "Nie znaleziono liczby ktora chciales usunac" << endl;
+			if (current == nullptr) {
+				cout << "Nie znaleziono liczby ktora chciales usunac" << endl;
+			}
 		}
 	}
 }	 
@@ -701,13 +672,13 @@ void Heap::floydHeapify(int i) {
 bool Heap::isValueInHeap(int value) {
 	return true;
 }
-
+//dodac jakas 
 void Heap::addValue(int index, int value) {
 }
-
+//ZMIENIC USUWANIE
 //void Heap::deleteValue(int value) {
 //}
-
+//ZMIENIC NA WYBOR CO USUNAC
 void Heap::deleteIndex(int index) {
 	int* arr1 = new int[1000];
 	for (int i = 0; i < size-1; i++) {
