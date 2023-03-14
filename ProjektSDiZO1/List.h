@@ -15,6 +15,7 @@ public:
 	void generateList(int size);
 	void addValueFromFile(int value1);
 	void clearList();
+	void Test();
 private:
 	List* head;
 	List* tail;

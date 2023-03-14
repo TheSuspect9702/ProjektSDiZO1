@@ -43,6 +43,7 @@ void StartCounter()
 	QueryPerformanceCounter(&li);
 	CounterStart = li.QuadPart;
 }
+
 double GetCounter()
 {
 	LARGE_INTEGER li;
@@ -109,6 +110,7 @@ void menu_table() {
 		}
 
 	} while (opt != '0');
+	myTab.~Tablica();
 }
 
 void menu_list() {
@@ -163,8 +165,8 @@ void menu_list() {
 			myList->display();
 			break;
 
-		case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego 
-			// można sobie tu dodać własne dodatkowe case'y
+		case '7': 
+			myList->Test();
 			break;
 		}
 
@@ -304,7 +306,7 @@ void Tablica::addValue(int index, int value) {
 		bool insert = false;
 		for (int i = 0; i < myTab.size; ) {
 			if (i != index || insert) {
-				tab1[j] = tab[i];
+				tab1[j] = myTab.tab[i];
 				i++;
 			}
 			else {
@@ -319,6 +321,7 @@ void Tablica::addValue(int index, int value) {
 		myTab.tab = new int[size];
 		for (int i = 0; i < size; i++)
 			myTab.tab[i] = tab1[i];
+		delete tab1;
 	}
 	else {
 		cout << "Podany indeks jest niepoprawny";
@@ -587,6 +590,42 @@ void List::loadListFromFile(string fileName) {
 		myList->addValueFromFile(value);
 	}
 	read.close();
+}
+
+void List::Test() {
+	srand(time(NULL));
+	double timeListDelete[10] = { 0 };
+	double timeListAdd[10] = { 0 };
+	int value;
+	int index;
+	int k = 0;
+	for (int j = 1; j <= 10; j++) {
+		for (int i = 0; i < 10; i++) {
+			value = rand() % 1000;
+			index = rand() % (j * 1000 - 10);
+			myList->generateList(j * 1000 * (k + 1));
+			StartCounter();
+			myList->addValue(index, value);
+			timeListAdd[k] += GetCounter();
+			value = rand() % 1000;
+			index = rand() % (j * 1000 - 10);
+			StartCounter();
+			myList->deleteValue(value);
+			timeListDelete[k] += GetCounter();
+			system("cls");
+			cout << "test zakończony" << endl;
+		}
+		k++;
+	}
+	k = 1;
+	for (int i = 0; i < 10; i++) {
+		timeListAdd[i] /= 100;
+		timeListDelete[i] /= 100;
+		cout << "Średni czas dla " << (i + 1) * 1000 * k << " próbek" << endl;
+		cout << "DODAJ: " << timeListAdd[i] << endl;
+		cout << "USUN: " << timeListDelete[i] << endl;
+		k++;
+	}
 }
 
 Heap::Heap() {
