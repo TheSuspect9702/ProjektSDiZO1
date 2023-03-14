@@ -273,8 +273,11 @@ Tablica::~Tablica() {
 	delete[] myTab.tab;
 	myTab.size = 0;
 }
-//dodac jakos warunek na to czy tablica wgl zostala juz stworzona
+
 int Tablica::loadFromFile(string fileName) {
+	if (tab != NULL || size != 0) {
+		myTab.~Tablica();
+	}
 	ifstream read(fileName);
 	int i = 0;
 	while (!read.eof()) {
@@ -299,32 +302,58 @@ bool Tablica::isValueInTable(int value) {
 }
 
 void Tablica::addValue(int index, int value) {
-	if (!(index < 0 || index >= size)) {
-		int* tab1 = new int[myTab.size];
-		int size1 = 0;
-		int j = 0;
-		bool insert = false;
-		for (int i = 0; i < myTab.size; ) {
-			if (i != index || insert) {
-				tab1[j] = myTab.tab[i];
-				i++;
+	if (index>=0 && index <=size) {
+		if (index == size) {
+			int* tab1 = new int[myTab.size + 1];
+			int size1 = 0;
+			int j = 0;
+			bool insert = false;
+			for (int i = 0; i < myTab.size; ) {
+				if (i != index || insert) {
+					tab1[j] = myTab.tab[i];
+					i++;
+				}
+				else {
+					tab1[j] = value;
+					insert = true;
+				}
+				j++;
+				size1++;
 			}
-			else {
-				tab1[j] = value;
-				insert = true;
-			}
-			j++;
+			tab1[size] = value;
 			size1++;
+			delete myTab.tab;
+			myTab.size = size1;
+			myTab.tab = new int[size];
+			for (int i = 0; i < size; i++)
+				myTab.tab[i] = tab1[i];
 		}
-		delete myTab.tab;
-		myTab.size = size1;
-		myTab.tab = new int[size];
-		for (int i = 0; i < size; i++)
-			myTab.tab[i] = tab1[i];
-		delete tab1;
+		else {
+			int* tab1 = new int[myTab.size];
+			int size1 = 0;
+			int j = 0;
+			bool insert = false;
+			for (int i = 0; i < myTab.size; ) {
+				if (i != index || insert) {
+					tab1[j] = myTab.tab[i];
+					i++;
+				}
+				else {
+					tab1[j] = value;
+					insert = true;
+				}
+				j++;
+				size1++;
+			}
+			delete myTab.tab;
+			myTab.size = size1;
+			myTab.tab = new int[size];
+			for (int i = 0; i < size; i++)
+				myTab.tab[i] = tab1[i];
+		}
 	}
 	else {
-		cout << "Podany indeks jest niepoprawny";
+		cout << "Podany indeks jest niepoprawny" << endl;
 	}
 }
 
@@ -345,6 +374,7 @@ void Tablica::deleteIndex(int index) {
 		myTab.tab = new int[size];
 		for (int i = 0; i < size; i++)
 			myTab.tab[i] = tab1[i];
+		delete[] tab1;
 	}
 	else 
 		cout << "Podany indeks jest niepoprawny";
@@ -381,6 +411,7 @@ void Tablica::deleteValue(int value) {
 	myTab.tab = new int[size];
 	for (int i = 0; i < size; i++)
 		myTab.tab[i] = tab1[i];
+	delete[] tab1;
 }
 
 void Tablica::Test() {
@@ -413,8 +444,8 @@ void Tablica::Test() {
 		timeTableAdd[i] /= 100;
 		timeTableDelete[i] /= 100;
 		cout << "Średni czas dla "<< (i+1)*1000*k << " próbek" << endl;
-		cout << "DODAJ: " << timeTableAdd[i] << endl;
-		cout << "USUN: " << timeTableDelete[i] << endl;
+		cout << "DODAJ: " << timeTableAdd[i] << " ms" << endl;
+		cout << "USUN: " << timeTableDelete[i] << " ms" << endl;
 		k++;
 	}
 }
@@ -424,9 +455,20 @@ List::List() {
 	prev = nullptr;
 	next = nullptr;
 }
-//zapytac sie czy clearList to moze byc po prostu ten destruktor
+
 List::~List() {
-	clearList();
+	List* next1;
+	List* current = head;
+	if (head != nullptr || tail != nullptr) {
+		while (current != nullptr) {
+			next = current->next;
+			delete current;
+			current = next;
+		}
+		head = nullptr;
+		tail = nullptr;
+	}
+	delete current;
 }
 
 bool List::isValueInList(int value) {
@@ -451,7 +493,6 @@ void List::addValueFromFile(int value1) {
 	if (head == nullptr) {
 		head = tempList;
 	}
-
 	tail = tempList;
 }
 
@@ -480,9 +521,10 @@ void List::addValue(int index, int value1) {
 		current = current->next;
 		i++;
 	}
-	
-	if (current == nullptr) {		//sprawdzenie czy nie wyszlismy poza liste
-		cout << "index poza zasięgiem" << endl;
+	if (current == nullptr && i == index) {
+		tail->next = tempList;
+		tempList->prev = tail;
+		tail = tempList;
 		return;
 	}
 	tempList->next = current;
@@ -491,9 +533,6 @@ void List::addValue(int index, int value1) {
 		current->prev->next = tempList;
 	}
 	current->prev = tempList;
-	if (current == head) {
-		head = tempList;
-	}
 }
 
 void List::deleteValue(int value) {
@@ -545,17 +584,7 @@ void List::display() {
 }
 
 void List::clearList() {
-	List* next1;
-	List* current = head;
-	if (head != nullptr || tail != nullptr) {
-		while (current != nullptr) {
-			next = current->next;
-			delete current;
-			current = next;
-		}
-		head = nullptr;
-		tail = nullptr;
-	}
+
 }
 
 void List::generateList(int size) {
@@ -577,7 +606,10 @@ void List::generateList(int size) {
 }	 
 
 void List::loadListFromFile(string fileName) {
-	clearList();
+	if (tail != nullptr)
+		myList->~List();
+	if (head != nullptr)
+		myList->~List();
 	ifstream read(fileName);
 	int size = 0;
 	int value;
