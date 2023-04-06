@@ -1,13 +1,13 @@
 #pragma once
-//Tablica.h
+
 #include <string>
 
-class Tablica {
+class Table {
 	int* tab;
 	int size;
 public:
-	Tablica();
-	~Tablica();
+	Table();
+	~Table();
 	void display();
 	int loadFromFile(std::string fileName);
 	bool isValueInTable(int value);

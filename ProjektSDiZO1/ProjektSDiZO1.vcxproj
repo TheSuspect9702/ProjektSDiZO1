@@ -127,12 +127,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="List.cpp" />
+    <ClCompile Include="Pomiary.cpp" />
     <ClCompile Include="ProjektSDiZO1.cpp" />
+    <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Heap.h" />
     <ClInclude Include="List.h" />
-    <ClInclude Include="Tablica.h" />
+    <ClInclude Include="Pomiary.h" />
+    <ClInclude Include="Table.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="plik.txt" />
