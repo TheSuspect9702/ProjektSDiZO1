@@ -2,6 +2,7 @@
 #include <string>
 class List {
 	int value;
+	int size;
 	List* next;
 	List* prev;
 public:
@@ -14,7 +15,7 @@ public:
 	void deleteValue(int value);
 	void generateList(int size);
 	void addValueFromFile(int value1);
-	void clearList();
+	void deleteIndex(int index);
 	void Test();
 private:
 	List* head;

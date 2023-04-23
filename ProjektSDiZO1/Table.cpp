@@ -111,23 +111,24 @@ void Table::deleteValue(int value) {
 			size1++;
 		}
 	}
-	delete tab;
+	tab = tab1;
 	size = size1;
-	tab = new int[size];
-	for (int i = 0; i < size; i++)
-		tab[i] = tab1[i];
-	delete[] tab1;
 }
 
 void Table::Test() {
 	srand(time(NULL));
 	double timeTableDelete[10] = { 0 };
+	double timeTableDeleteFront[10] = { 0 };
+	double timeTableDeleteBack[10] = { 0 };
 	double timeTableAdd[10] = { 0 };
+	double timeTableAddFront[10] = { 0 };
+	double timeTableAddBack[10] = { 0 };
+	double timeTableSearch[10] = { 0 };
 	int value;
 	int index;
 	int k = 0;
 	for (int j = 1; j <= 10; j++) {
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100; i++) {
 			value = rand() % 1000;
 			index = rand() % (j * 1000 - 10);
 			generateTable(j * 1000 * (k + 1));
@@ -135,10 +136,27 @@ void Table::Test() {
 			addValue(index, value);
 			timeTableAdd[k] += pomiar.GetCounter();
 			value = rand() % 1000;
-			index = rand() % (j * 1000 - 10);
+			pomiar.StartCounter();
+			addValue(0, value);
+			timeTableAddFront[k] += pomiar.GetCounter();
+			value = rand() % 1000;
+			pomiar.StartCounter();
+			addValue(size-1, value);
+			timeTableAddBack[k] += pomiar.GetCounter();
+			value = rand() % 1000;
 			pomiar.StartCounter();
 			deleteValue(value);
 			timeTableDelete[k] += pomiar.GetCounter();
+			pomiar.StartCounter();
+			deleteIndex(0);
+			timeTableDeleteFront[k] += pomiar.GetCounter();
+			pomiar.StartCounter();
+			deleteIndex(size-1);
+			timeTableDeleteBack[k] += pomiar.GetCounter();
+			value = rand() % 1000;
+			pomiar.StartCounter();
+			isValueInTable(100000);
+			timeTableSearch[k] += pomiar.GetCounter();
 			system("cls");
 			cout << "test zakoñczony" << endl;
 		}
@@ -146,11 +164,21 @@ void Table::Test() {
 	}
 	k = 1;
 	for (int i = 0; i < 10; i++) {
-		timeTableAdd[i] /= 100;
-		timeTableDelete[i] /= 100;
+		timeTableAdd[i] *= 10000;
+		timeTableAddFront[i] *= 10000;
+		timeTableAddBack[i] *= 10000;
+		timeTableDelete[i] *= 10000;
+		timeTableDeleteFront[i] *= 10000;
+		timeTableDeleteBack[i] *= 10000;
+		timeTableSearch[i] *= 10000;
 		cout << "Œredni czas dla " << (i + 1) * 1000 * k << " próbek" << endl;
-		cout << "DODAJ: " << timeTableAdd[i] << " ms" << endl;
-		cout << "USUN: " << timeTableDelete[i] << " ms" << endl;
+		cout << "DODAJ: " << timeTableAdd[i] << " ns" << endl;
+		cout << "DODAJ DO PRZODU: " << timeTableAddFront[i] << " ns" << endl;
+		cout << "DODAJ DO TY£U: " << timeTableAddBack[i] << " ns" << endl;
+		cout << "USUN: " << timeTableDelete[i] << " ns" << endl;
+		cout << "USUN NA POCZ¥TKU: " << timeTableDeleteFront[i] << " ns" << endl;
+		cout << "USUN NA KONCU: " << timeTableDeleteBack[i] << " ns" << endl;
+		cout << "USUN NA KONCU: " << timeTableSearch[i] << " ns" << endl;
 		k++;
 	}
 }

@@ -127,18 +127,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BRT.cpp" />
+    <ClCompile Include="Heap.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="Pomiary.cpp" />
     <ClCompile Include="ProjektSDiZO1.cpp" />
     <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BRT.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Pomiary.h" />
     <ClInclude Include="Table.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="BRT.txt" />
+    <Text Include="bst1.txt" />
+    <Text Include="bst2.txt" />
+    <Text Include="Heap1.txt" />
+    <Text Include="Heap2.txt" />
     <Text Include="plik.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
