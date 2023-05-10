@@ -1,9 +1,10 @@
 #include "BRT.h"
 #include <iostream>
 #include <fstream>
+#include "Pomiary.h"
 string cr1, cl1, cp1;
 using namespace std;
-
+Pomiary pomiar3;
 BRT::BRT()
 {
 }
@@ -14,11 +15,25 @@ BRT::~BRT()
 
 bool BRT::isValueInTree(int value)
 {
+    BRT* current = root;
+    while (true) {
+        if (current->value == value)
+            return true;
+        if (current->value > value && current->left != NULL)
+            current = current->left;
+        else if (current->value < value && current->right != NULL)
+            current = current->right;
+        else
+            break;
+    }
 	return false;
 }
 
 void BRT::loadFromFile(string fileName)
 {
+  
+    clearTree(root);
+    root = NULL;
     int size;
     int val;
     ifstream read(fileName);
@@ -30,6 +45,7 @@ void BRT::loadFromFile(string fileName)
     }
     read.close();
 }
+
 void BRT::printBRT(string sp, string sn, BRT * p)
 {
     string t;
@@ -238,7 +254,7 @@ void BRT::addValue(int value)
 
 void BRT::revalueTree(BRT* B) { 
     while (true) {
-        if (B->right == NULL && B->left != NULL && B->left->color < 'R') {
+        if (B->right == NULL && B->left != NULL && B->left->color > 'R') {
             if (B->left->color == 'R') {
                 rotateRight(B);
                 B->father->color = B->color;
@@ -259,10 +275,11 @@ void BRT::revalueTree(BRT* B) {
             rotateRight(B);
             B->father->color = B->color;
             B->color = 'B';
-            B->father->left->color = 'B';
+            if (B->father->left != NULL)
+                B->father->left->color = 'B';
             break;
         }
-        else if (B->left == NULL && B->right != NULL && B->right->color < 'R') {
+        else if (B->left == NULL && B->right != NULL && B->right->color > 'R') {
             if (B->right->color == 'R') {
                 rotateLeft(B);
                 B->father->color = B->color;
@@ -283,7 +300,8 @@ void BRT::revalueTree(BRT* B) {
             rotateLeft(B);
             B->father->color = B->color;
             B->color = 'B';
-            B->father->right->color = 'B';
+            if (B->father->right != NULL)
+                B->father->right->color = 'B';
             break;
         }
         else if (B->right->color > 'R') { //jesli podowjny kolor ma prawy syn 
@@ -293,14 +311,20 @@ void BRT::revalueTree(BRT* B) {
                 B->color = 'R';
                 continue;
             }
-            else if (B->left->color == 'B' && B->left->right->color == 'B' && B->left->left->color == 'B') {
+            else if (B->left->color == 'B' && B->left->right != NULL && B->left->left != NULL && B->left->right->color == 'B' && B->left->left->color == 'B') {
                 B->right->color -= 'B';
                 B->color += 'B';
                 B->left->color = 'R';
                 B = B->father;
                 continue;
             }
-            else if (B->left->color == 'B' && B->left->right->color == 'R' && B->left->left->color == 'B') {
+            else if (B->left->right == NULL && B->left->left == NULL) {
+                B->color = 'B';
+                B->right->color -= 'B';
+                B->left->color = 'R';
+                break;
+            }
+            else if (B->left->color == 'B' && B->left->right != NULL && B->left->left != NULL && B->left->right->color == 'R' && B->left->left->color == 'B') {
                 rotateLeft(B->left);
                 B->left->left->color = B->left->color;
                 B->left->color = 'R';
@@ -319,17 +343,34 @@ void BRT::revalueTree(BRT* B) {
                 B->color = 'R';
                 continue;
             }
-            else if (B->right->color == 'B' && B->right->left->color == 'B' && B->right->right->color == 'B') {
+            else if (B->right->left != NULL && B->right->right != NULL && B->right->left->color == 'B' && B->right->right->color == 'B') {
                 B->left->color -= 'B';
                 B->color += 'B';
                 B->right->color = 'R';
                 B = B->father;
                 continue;
             }
-            else if (B->right->color == 'B' && B->right->left->color == 'R' && B->right->right->color == 'B') {
+            else if (B->right->left == NULL && B->right->right == NULL) {
+                B->color = 'B';
+                B->left->color -= 'B';
+                B->right->color = 'R';
+                break;
+            }
+            //else if (B->right->color == 'B' && ((B->right->right != NULL && B->right->left != NULL && B->right->right->color == 'B' && B->right->left->color == 'B')
+            //    || (B->right->right == NULL && B->right->left == NULL))) {
+            //    B->color = 'B';
+            //    B->right->color = 'R';
+            //    break;
+            //}
+            else if (B->right->left != NULL && B->right->right != NULL && B->right->left->color == 'R' && B->right->right->color == 'B') {
                 rotateRight(B->right);
                 B->right->right->color = B->right->color;
                 B->right->color = 'R';
+            }
+            else if (B->right->left != NULL && B->right->right == NULL && B->right->left->color == 'R') {
+                rotateRight(B->right);
+                B->right->right->color = B->color;
+                B->right->color = 'B';
             }
             rotateLeft(B);
             B->father->color = B->color;
@@ -343,102 +384,139 @@ void BRT::revalueTree(BRT* B) {
 
 void BRT::removeValue(int value)
 {
+    BRT* temp = new BRT();
+    temp->color = 'B';
     BRT * current = root;
     while (true) {
         if (current->value == value) {
-            if (current->left == NULL && current->right == NULL) {
-                if (current->value < current->father->value) 
-                    current->father->left = NULL;
+            if (current->left == NULL && current->right == NULL) { //jesli wezel nie ma dzieci
+                if(current->father != NULL)
+                {
+                    if (current->value < current->father->value)
+                        current->father->left = NULL;
+                    else
+                        current->father->right = NULL;
+                }
                 else 
-                    current->father->right = NULL;
+                    root = NULL;
                 current = NULL;
                 break;
             }
-            else if (current->left != NULL && current->left->right == NULL && current->left->left == NULL && current->right == NULL) {
-                if (current->value < current->father->value)
-                    current->father->left = current->left;
-                else
-                    current->father->right = current->left;
-                current->left->color = 'B';
-                current->left->father = current->father;
-                current = NULL;
-                break;
-            }
-            else if (current->right != NULL && current->right->right == NULL && current->right->left == NULL && current->left == NULL) {
-                if (current->value < current->father->value)
-                    current->father->left = current->right;
-                else
-                    current->father->right = current->right;
+            else if (current->right != NULL && current->right->right == NULL && current->right->left == NULL && current->left == NULL) { //jesli wezel ma prawe dziecko ale lewego nie ma
+                if (current->father != NULL)
+                {
+                    if (current->value < current->father->value)
+                        current->father->left = current->right;
+                    else
+                        current->father->right = current->right;
+                }
+                else 
+                    root = current->right;
                 current->right->color = 'B';
                 current->right->father = current->father;
                 current = NULL;
                 break;
             }
-            /*else if (current->right->left == NULL) {
-                current->right->left = current->left;
-                current->right->father = current->father;
-                if (current->value < current->father->value)
-                    current->father->left = current->right;
-                else
-                    current->father->right = current->right;
-                current->left->father = current->right;
-                if (current->right->color == 'B' && current->right->right != NULL) {
-                    current->right->right->color += 'B';
-                    current->right->color = current->color;
-                    revalueTree(current->right);
+            else if (current->left != NULL && current->left->right == NULL && current->left->left == NULL && current->right == NULL) { //jesli wezel ma lewe dziecko a prawego nie ma 
+                if (current->father != NULL)
+                {
+                    if (current->value < current->father->value)
+                        current->father->left = current->left;
+                    else
+                        current->father->right = current->left;
                 }
-                else if (current->right->right == NULL && current->right->color == 'B') {
-                    current->right->color = current->color;
-                    revalueTree(current->right);
+                else 
+                    root = current->left;
+                current->left->color = 'B';
+                current->left->father = current->father;
+                current = NULL;
+                break;
+            }
+            else if (current->left->right == NULL) {    //jesli lewy syn nie ma prawego dziecka (poprzednik)
+                current->left->right = current->right;
+                if (current->father != NULL) {
+                    current->left->father = current->father;
+                    if (current->value < current->father->value)
+                        current->father->left = current->left;
+                    else
+                        current->father->right = current->left;
+                }
+                else {
+                    current->left->father = NULL;
+                    root = current->left;
+                }
+                current->right->father = current->left;
+                if (current->left->color == 'R') {
+                    current->left->color = 'B';
+                }
+                else if (current->left->color == 'B' && current->left->left == NULL) {
+                    current->left->color = current->color;
+                    BRT* current1 = new BRT();
+                    current->left->left = current1;
+                    current1->father = current->left;
+                    current1->color = 'z';
+                    revalueTree(current->left);
+                    current->left->left = NULL;
+                    current1 == NULL;
+                }
+                else if (current->left->color == 'B' && current->left->left != NULL) {
+                    current->left->left->color = 'B';
                 }
                 current = NULL;
                 break;
-            }*/
+            }
             else { //co jak nastepnik to nie prawy syn
-                BRT* current1 = current->right;
-                while (current1->left != NULL) { //ustalenie nastepnika wezla ktory chcemy usunac
-                    current1 = current1->left;
+                BRT* current1 = current->left;
+                while (current1->right != NULL) { //ustalenie nastepnika wezla ktory chcemy usunac
+                    current1 = current1->right;
                 }
-                if (current1->right != NULL) {
-                    current1->right->father = current1->father;
-                }
-                if (current == root) {
-                    root = current1;
-                }
-                if (current1->father->left == current1 && current1->right != NULL)
-                    current1->father->left = current1->right;
-                else if (current1->father->left == current1)
-                    current1->father->left = NULL;
-                else if (current1->father->right == current1 && current1->right != NULL)
-                    current1->father->right = current1->right;
-                else
-                    current1->father->right = NULL;
-
-
-                //dokonaj równowa¿enia jeœli nastêpnik by³ czarny
+                current->value = current1->value;
                 if (current1->color == 'B') {
-                    while (current1->right != NULL && current1->right != root && current->right->color == 'B') {
-
+                    if (current1->left == NULL) {
+                       /* temp = current1;
+                        while (true)
+                        {
+                            if (temp->father->left != NULL && temp->father->left->color == 'R') {
+                                temp->father->color = 'R';
+                                temp->father->left->color = 'B';
+                                rotateRight(temp->father);
+                            }
+                            else if (temp->father->left == NULL) {
+                                temp->father->color += 'B';
+                                temp = temp->father;
+                                continue;
+                            }
+                            else if (temp->father->right->left != NULL && temp->father->right->left->color == 'R') {
+                                temp->father->right->color = 'R';
+                                temp->father->right->left->color = 'B';
+                                rotateRight(temp->father->right);
+                            }
+                            if (temp->father->right != NULL) {
+                                temp->father->right->color = temp->father->color;
+                                if (temp->father->right->right != NULL)
+                                    temp->father->right->right->color = 'B';
+                            }
+                            temp->father->color = 'B';
+                            rotateLeft(temp);
+                            break;
+                            
+                        }*/
+                        temp->color = 'z';
+                        temp->father = current1->father;
+                        current1->father->right = temp;
+                        revalueTree(current1->father);
+                    }
+                    else {
+                        current1->father->right = current1->left;
+                        current1->left->father = current1->father;
+                        current1->left->color = 'B';
+                        break;
                     }
                 }
-                /*current1->right->father = current1->father;
-                current->left->father = current1;
-                current->right->father = current1;
-                if (current->value < current->father->value)
-                    current->father->left = current1;
-                else
-                    current->father->right = current1;
-                if (current1->color = 'B' && current1->right != NULL) {
-                    current1->right += 'B';
-                }
-                current1->father = current->father;
-                current1->color = current->color;
-                if (current1->color = 'B' && current1->right != NULL) {
-                    current1 = current1->right;
-                    revalueTree(current1->father);
-                }
-                current = NULL;
-                break;*/
+
+                current1->father->right = NULL;
+                current1 = NULL;
+                break;
             }
         }
         if (current->left == NULL && current->right == NULL)
@@ -449,18 +527,20 @@ void BRT::removeValue(int value)
         }
         else if (current->value < value && current->right != NULL)
             current = current->right;
+        else
+            break;
     }
 }
 
 void BRT::generateTree(int size)
 {
+    clearTree(root);
+    root = NULL;
     int val;
     for (int i = 0; i < size; i++) {
         val = rand() % 100;
-        cout << val << " ";
         addValue(val);
     }
-    cout << endl;
 }
 
 void BRT::rotateLeft(BRT* temp1)
@@ -508,5 +588,58 @@ void BRT::rotateRight(BRT* temp1)
         }
         else
             root = left;
+    }
+}
+
+void BRT::clearTree(BRT* root1)
+{
+    if (root1 != NULL) {
+        if(root1->left != NULL)
+            clearTree(root1->left);
+        if(root1->right != NULL)
+            clearTree(root1->right);
+        delete root1;
+    }
+}
+
+void BRT::Tests()
+{
+    srand(time(NULL));
+    double timeTreeDelete[10] = { 0 };
+    double timeTreeAdd[10] = { 0 };
+    double timeTreeSearch[10] = { 0 };
+    int value;
+    int index;
+    int k = 0;
+    for (int j = 1; j <= 10; j++) {
+        for (int i = 0; i < 100; i++) {
+            value = rand() % 2000;
+            generateTree(j * 1000 * (k + 1));
+            pomiar3.StartCounter();
+            addValue(value);
+            timeTreeAdd[k] += pomiar3.GetCounter();
+            value = rand() % 2000;
+            pomiar3.StartCounter();
+            removeValue(value);
+            timeTreeDelete[k] += pomiar3.GetCounter();
+            pomiar3.StartCounter();
+            value = rand() % 2000;
+            isValueInTree(value);
+            timeTreeSearch[k] += pomiar3.GetCounter();
+            system("cls");
+            cout << "test zakoñczony" << endl;
+        }
+        k++;
+    }
+    k = 1;
+    for (int i = 0; i < 10; i++) {
+        timeTreeAdd[i] *= 10000;
+        timeTreeDelete[i] *= 10000;
+        timeTreeSearch[i] *= 10000;
+        cout << "Œredni czas dla " << (i + 1) * 1000 * k << " próbek" << endl;
+        cout << "DODAJ: " << timeTreeAdd[i] << " ms" << endl;
+        cout << "USUN: " << timeTreeDelete[i] << " ms" << endl;
+        cout << "WYSZUKAJ: " << timeTreeSearch[i] << " ms" << endl;
+        k++;
     }
 }

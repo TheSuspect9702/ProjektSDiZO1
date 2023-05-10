@@ -14,7 +14,7 @@ List::List() {
 	next = nullptr;
 }
 
-List::~List() {
+void List::DList() {
 	List* next1;
 	List* current = head;
 	if (head != nullptr || tail != nullptr) {
@@ -162,6 +162,7 @@ void List::deleteIndex(int index) {
 }
 
 void List::generateList(int size) {
+	DList();
 	srand(time(NULL));
 	size = size;
 	for (int i = 0; i < size; i++) {
@@ -180,6 +181,7 @@ void List::generateList(int size) {
 }
 
 void List::loadListFromFile(string fileName) {
+	DList();
 	ifstream read(fileName);
 	int value;
 	read >> size;
@@ -207,7 +209,7 @@ void List::Test() {
 			value = rand() % 1000;
 			index = rand() % (j * 1000 - 10);
 			generateList(j * 1000 * (k + 1));
-			pomiar1.StartCounter();
+			/*pomiar1.StartCounter();
 			addValue(index, value);
 			timeListAdd[k] += pomiar1.GetCounter();
 			value = rand() % 1000;
@@ -228,9 +230,9 @@ void List::Test() {
 			pomiar1.StartCounter();
 			deleteIndex(size);
 			timeListDeleteBack[k] += pomiar1.GetCounter();
-			value = rand() % 1000;
+			value = rand() % 1000;*/
 			pomiar1.StartCounter();
-			isValueInList(value);
+			isValueInList(1000000);
 			timeListSearch[k] += pomiar1.GetCounter();
 			system("cls");
 			cout << "test zakoñczony" << endl;

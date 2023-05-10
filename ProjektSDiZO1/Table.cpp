@@ -17,9 +17,7 @@ Table::~Table() {
 }
 
 int Table::loadFromFile(string fileName) {
-	/*if (tab != NULL || size != 0) {
-		~Table();
-	}*/
+	delete tab;
 	ifstream read(fileName);
 	int i = 0;
 	read >> size;
@@ -92,8 +90,9 @@ void Table::display() {
 }
 
 void Table::generateTable(int size1) {
+	delete tab;
 	srand(time(NULL));
-	this->size = size1;
+	size = size1;
 	tab = new int[size];
 	for (int i = 0; i < size; i++) {
 		tab[i] = rand() % 2000;

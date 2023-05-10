@@ -241,17 +241,17 @@ void menu_BRT() {
 			myTree.displayTree();
 			break;
 
-		case '4': //tutaj znajdowanie elemetu w tablicy
+		case '4': //tutaj znajdowanie elemetu 
 			cout << " podaj wartosc:";
 			cin >> value;
 			if (myTree.isValueInTree(value))
-				cout << "podana wartosc jest w kopcu";
+				cout << "podana wartosc jest w drzewie";
 			else
-				cout << "podanej wartosci NIE ma w kopcu";
+				cout << "podanej wartosci NIE ma w drzewie";
 			break;
 
-		case '5':  //tutaj generowanie  tablicy
-			cout << "Podaj ilosc elementów kopca:";
+		case '5':  //tutaj generowanie  
+			cout << "Podaj ilosc elementów drzewie:";
 			cin >> value;
 			myTree.generateTree(value);
 			myTree.displayTree();
@@ -262,7 +262,7 @@ void menu_BRT() {
 			break;
 
 		case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego 
-			// można sobie tu dodać własne dodatkowe case'y
+			myTree.Tests();
 			break;
 		}
 

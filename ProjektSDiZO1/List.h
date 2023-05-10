@@ -7,7 +7,7 @@ class List {
 	List* prev;
 public:
 	List();
-	~List();
+	void DList();
 	void loadListFromFile(std::string fileName);
 	void display();
 	bool isValueInList(int value);

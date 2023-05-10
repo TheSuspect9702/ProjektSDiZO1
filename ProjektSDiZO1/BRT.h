@@ -21,6 +21,8 @@ public:
 	void generateTree(int size);
 	void rotateLeft(BRT * temp);
 	void rotateRight(BRT * temp);
+	void clearTree(BRT*root);
+	void Tests();
 private:
 	BRT * root;
 	BRT* S;

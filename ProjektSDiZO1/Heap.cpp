@@ -8,6 +8,7 @@
 using namespace std;
 string cr, cl, cp;
 Pomiary pomiar2;
+
 Heap::Heap() {
 	size = 0;
 }
@@ -48,7 +49,9 @@ void Heap::display() {
 	printHeap("", "", 0, arr, n);
 }
 
-int Heap::loadFromFile(string fileName) {
+int Heap::loadFromFile(string fileName){
+	n = 0;
+	delete arr;
 	ifstream file(fileName);
 	file >> size;
 	size *= 10;
@@ -80,9 +83,9 @@ void Heap::floydHeapify(int i) {
 void Heap::Tests()
 {
 	srand(time(NULL));
-	double timeTableDelete[10] = { 0 };
-	double timeTableAdd[10] = { 0 };
-	double timeTableSearch[10] = { 0 };
+	double timeHeapDelete[10] = { 0 };
+	double timeHeapAdd[10] = { 0 };
+	double timeHeapSearch[10] = { 0 };
 	int value;
 	int index;
 	int k = 0;
@@ -92,15 +95,15 @@ void Heap::Tests()
 			generateHeap(j * 1000 * (k + 1));
 			pomiar2.StartCounter();
 			addValue(value);
-			timeTableAdd[k] += pomiar2.GetCounter();
+			timeHeapAdd[k] += pomiar2.GetCounter();
 			index = rand() % (j * 1000 - 10);
 			pomiar2.StartCounter();
 			deleteIndex(index);
-			timeTableDelete[k] += pomiar2.GetCounter();
+			timeHeapDelete[k] += pomiar2.GetCounter();
 			pomiar2.StartCounter();
 			value = rand() % 2000;
 			isValueInHeap(value);
-			timeTableSearch[k] += pomiar2.GetCounter();
+			timeHeapSearch[k] += pomiar2.GetCounter();
 			system("cls");
 			cout << "test zakoñczony" << endl;
 			delete arr;
@@ -110,13 +113,13 @@ void Heap::Tests()
 	}
 	k = 1;
 	for (int i = 0; i < 10; i++) {
-		timeTableAdd[i] *= 10000;
-		timeTableDelete[i] *= 10000;
-		timeTableSearch[i] *= 10000;
+		timeHeapAdd[i] *= 10000;
+		timeHeapDelete[i] *= 10000;
+		timeHeapSearch[i] *= 10000;
 		cout << "Œredni czas dla " << (i + 1) * 1000 * k << " próbek" << endl;
-		cout << "DODAJ: " << timeTableAdd[i] << " ms" << endl;
-		cout << "USUN: " << timeTableDelete[i] << " ms" << endl;
-		cout << "WYSZUKAJ: " << timeTableSearch[i] << " ms" << endl;
+		cout << "DODAJ: " << timeHeapAdd[i] << " ms" << endl;
+		cout << "USUN: " << timeHeapDelete[i] << " ms" << endl;
+		cout << "WYSZUKAJ: " << timeHeapSearch[i] << " ms" << endl;
 		k++;
 	}
 }
@@ -135,6 +138,7 @@ void Heap::addValue(int value) {
 	if(n!=1)
 	floydHeapifyDown((n / 2) - 1);
 }
+
 void Heap::floydHeapifyDown(int i) {
 	int largest = i;
 	int left = 2 * i + 1;
@@ -145,24 +149,31 @@ void Heap::floydHeapifyDown(int i) {
 		largest = right;
 	if (largest != i) {
 		swap(arr[i], arr[largest]);
-		if (i != 1 && i != 2 && i >0)
+		if (i != 1 && i != 2 && i > 0)
 			floydHeapifyDown((i / 2) - 1);
 		else if (i == 1 || i == 2)
 			floydHeapifyDown(0);
 	}
 }
+
 void Heap::deleteIndex(int index) {
 	if (index < n) {
 		int temp = arr[n-1];
-		arr[index] = arr[index * 2 + 1];
-		arr[index * 2 + 1] = temp;
+		arr[index] = temp;
+		//arr[index * 2 + 1] = temp;
 		n--;
+		if (index % 2 == 1)
+			floydHeapifyDown((index - 1) / 2);
+		else
+			floydHeapifyDown(index / 2);
 		floydHeapify(index);
 		floydHeapify(index * 2 + 1);
 	}
 }
 
 void Heap::generateHeap(int size1) {
+	delete arr;
+	n = 0;
 	srand(time(NULL));
 	size = size1*10;
 	arr = new int[size];
@@ -173,3 +184,4 @@ void Heap::generateHeap(int size1) {
 	for (int i = (n / 2) - 1; i >= 0; i--)
 		floydHeapify(i);
 }
+
